@@ -1,0 +1,92 @@
+# wandb_configs/sweep.yaml
+# ✅ SOTA-Level Sweep Config with Tags for Full Reproducibility + Future Enhancements
+
+program: train.py
+method: bayes
+
+# 🎯 Primary sweep goal
+metric:
+  name: val_loss
+  goal: minimize
+
+# 🧪 Additional metrics tracked in train.py (recommended to log with wandb.log)
+metrics:
+  - name: val_dice
+    goal: maximize
+  - name: val_iou
+    goal: maximize
+  # Optional enhancements below — logged in train.py
+  - name: train_time
+    goal: minimize
+  - name: params_count
+    goal: minimize
+
+# 🧠 Hyperparameter search space
+parameters:
+  learning_rate:
+    distribution: log_uniform_values
+    min: 1e-5
+    max: 1e-2
+
+  batch_size:
+    values: [8, 16, 32]
+
+  optimizer:
+    values: [adamw, sgd, lion]
+
+  weight_decay:
+    distribution: uniform
+    min: 0.0
+    max: 0.1
+
+  scheduler:
+    values: [cosine, step, linear]
+
+  warmup_ratio:
+    distribution: uniform
+    min: 0.0
+    max: 0.2
+
+  ema:
+    values: [true, false]
+
+  amp:
+    values: [true, false]
+
+  dropout:
+    distribution: uniform
+    min: 0.0
+    max: 0.5
+
+  augment_strategy:
+    values: ["default", "strong", "none"]
+
+  seed:
+    values: [42, 1337, 2025]
+
+  # ⭐ Sweep across different model variants
+  model_variant:
+    values: ["vit_b", "vit_l", "vit_h"]
+
+  # ⭐ Optional: Sweep across datasets (if applicable)
+  dataset_name:
+    values: ["coco", "ade20k", "cityscapes"]
+
+# ✅ Entry command — ${args} will be replaced with sweep hyperparameters
+command:
+  - python
+  - train.py
+  - --config
+  - config.yaml
+  - ${args}
+
+# 📝 Metadata for reference (used in README or artifact logging)
+description: >
+  Sweep config for SAM fine-tuning: supports learning rate, optimizer, augmentation,
+  model scale, and dataset. Includes optional tracking of val_dice, val_iou, train_time, and params_count.
+tags:
+  - SAM
+  - fine-tuning
+  - wandb
+  - sweep
+  - sota
